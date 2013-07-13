@@ -104,7 +104,7 @@ for (my $i = 0; $i < $courseNum; $i++) {
         chomp($courseName);
         $courseName = uc $courseName;
         $courseName =~ s/\*/\.\*/g;
-        my @possibleCourses = grep(/$courseName/, keys $semesterHash);
+        my @possibleCourses = grep(/$courseName/, keys %{$semesterHash});
         if (scalar @possibleCourses > 1) {
             print "Possible Matches:\n\n";
             map {print "$_\n"} sort @possibleCourses;
@@ -149,8 +149,8 @@ my $totalCount = 0;
 my @schedules;
 my $currentPerc = 0;
 
-recursiveProbabilityCount($courses, 0, [sort keys $courses]);
-recursiveProbability({}, $courses, 0, [sort keys $courses]);
+recursiveProbabilityCount($courses, 0, [sort keys %{$courses}]);
+recursiveProbability({}, $courses, 0, [sort keys %{$courses}]);
 print "$counter\/$totalCount\n";
 sub recursiveProbabilityCount
 {
@@ -163,11 +163,11 @@ sub recursiveProbabilityCount
         return;
     }
     
-    foreach my $lecMeet (keys $courses->{$keys[$idx]}->{LEC}) {
+    foreach my $lecMeet (keys %{$courses->{$keys[$idx]}->{LEC}}) {
         if (exists $courses->{$keys[$idx]}->{TUT}) {
-            foreach my $tutMeet (keys $courses->{$keys[$idx]}->{TUT}) {
+            foreach my $tutMeet (keys %{$courses->{$keys[$idx]}->{TUT}}) {
                 if (exists $courses->{$keys[$idx]}->{PRA}) {
-                    foreach my $praMeet (keys $courses->{$keys[$idx]}->{PRA}) {
+                    foreach my $praMeet (keys %{$courses->{$keys[$idx]}->{PRA}}) {
                         recursiveProbabilityCount($courses, $idx + 1, \@keys);
                     }
                 } else {
@@ -205,13 +205,13 @@ sub recursiveProbability
         return;
     }
     
-    foreach my $lecMeet (keys $courses->{$keys[$idx]}->{LEC}) {
+    foreach my $lecMeet (keys %{$courses->{$keys[$idx]}->{LEC}}) {
         $instance{$keys[$idx]}->{LEC} =  {$lecMeet => $courses->{$keys[$idx]}->{LEC}->{$lecMeet}};
         if (exists $courses->{$keys[$idx]}->{TUT}) {
-            foreach my $tutMeet (keys $courses->{$keys[$idx]}->{TUT}) {
+            foreach my $tutMeet (keys %{$courses->{$keys[$idx]}->{TUT}}) {
                 $instance{$keys[$idx]}->{TUT} = {$tutMeet =>$courses->{$keys[$idx]}->{TUT}->{$tutMeet}};
                 if (exists $courses->{$keys[$idx]}->{PRA}) {
-                    foreach my $praMeet (keys $courses->{$keys[$idx]}->{PRA}) {
+                    foreach my $praMeet (keys %{$courses->{$keys[$idx]}->{PRA}}) {
                         $instance{$keys[$idx]}->{PRA} = {$praMeet => $courses->{$keys[$idx]}->{PRA}->{$praMeet}};
                         recursiveProbability(\%instance, $courses, $idx + 1, \@keys);
                     }
@@ -238,10 +238,10 @@ sub checkNumberOfConflicts
     my $instance = shift;
     my $numConflicts = 0;
     my $week = {};
-    foreach my $course (keys $instance) {
-        foreach my $meetType (keys $instance->{$course}) {
-            foreach my $sectionInHash (keys $instance->{$course}->{$meetType}) {
-                foreach my $meet (keys $instance->{$course}->{$meetType}->{$sectionInHash}) {
+    foreach my $course (keys %{$instance}) {
+        foreach my $meetType (keys %{$instance->{$course}}) {
+            foreach my $sectionInHash (keys %{$instance->{$course}->{$meetType}}) {
+                foreach my $meet (keys %{$instance->{$course}->{$meetType}->{$sectionInHash}}) {
                     my $meetHash = $instance->{$course}->{$meetType}->{$sectionInHash}->{$meet};
                     my $notes = $meetHash->{notes};
                     my $day = $meetHash->{day};
@@ -292,7 +292,7 @@ if (scalar(@schedules) > 0) {
     my @daysOfWeek = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri');
     my @colorArray = ('#FF7F00', '#AB82FF', '#C0C0C0', '#DEB887', '#6495ED', '#FF7F50', '#FAEBD7', '#5F9EA0');
     for (my $i = 0; $i < $numberofschedules; $i++) {
-        my @coursesChosen = sort keys $schedules[$i]->[1];
+        my @coursesChosen = sort keys %{$schedules[$i]->[1]};
         my %colorHash;
         for (my $j = 0; $j <= $#coursesChosen; $j++) {
             $colorHash{$coursesChosen[$j]} = $j;
@@ -322,11 +322,11 @@ if (scalar(@schedules) > 0) {
             foreach my $day (@daysOfWeek) {
                 if (exists $week->{$day} && exists $week->{$day}->{"$i\:00"}){
                     if ($week->{$day}->{"$i\:00"}->{count} == 0) {
-                            foreach my $course (keys $week->{$day}->{"$i\:00"}) {
+                            foreach my $course (keys %{$week->{$day}->{"$i\:00"}}) {
                                 next if ($course eq 'count');
                                 print "    <td bgcolor=\"".$colorArray[$colorHash{$course}]."\">";
                                 print "$course<br>";
-                                foreach my $key (keys $week->{$day}->{"$i\:00"}->{$course}) {
+                                foreach my $key (keys %{$week->{$day}->{"$i\:00"}->{$course}}) {
                                     print $key.' '.$week->{$day}->{"$i\:00"}->{$course}->{$key};
                                 }
                             }
@@ -334,10 +334,10 @@ if (scalar(@schedules) > 0) {
                     } else {
                         print "    <td bgcolor=\"red\"><font color=\"white\">";
                         
-                        foreach my $course (keys $week->{$day}->{"$i\:00"}) {
+                        foreach my $course (keys %{$week->{$day}->{"$i\:00"}}) {
                                 next if ($course eq 'count');
                                 print "<u>$course</u><br>";
-                                foreach my $key (keys $week->{$day}->{"$i\:00"}->{$course}) {
+                                foreach my $key (keys %{$week->{$day}->{"$i\:00"}->{$course}}) {
                                     print $key.' '.$week->{$day}->{"$i\:00"}->{$course}->{$key}.'<br>';
                                 }
                         }
@@ -358,15 +358,15 @@ if (scalar(@schedules) > 0) {
         print "<h2>Courses:</h2>\n";
         print "<ul>\n";
         
-        foreach my $course (sort keys $schedules[$i]->[1]) {
+        foreach my $course (sort keys %{$schedules[$i]->[1]}) {
             print "    <li>\n";
             print "        <b><font color=\"".$colorArray[$colorHash{$course}]."\">$course</font></b>\n";
             print "        <ul>\n";
             
-            foreach my $meet (keys $schedules[$i]->[1]->{$course}) {
+            foreach my $meet (keys %{$schedules[$i]->[1]->{$course}}) {
                 print "            <li>$meet ";
                 
-                foreach my $section (keys $schedules[$i]->[1]->{$course}->{$meet}) {
+                foreach my $section (keys %{$schedules[$i]->[1]->{$course}->{$meet}}) {
                     print $section;
                 }
                 
@@ -410,11 +410,11 @@ if (scalar(@schedules) > 0) {
             foreach my $day (@daysOfWeek) {
                 if (exists $week->{$day} && exists $week->{$day}->{"$i\:00"}){
                     if ($week->{$day}->{"$i\:00"}->{count} == 0) {
-                            foreach my $course (keys $week->{$day}->{"$i\:00"}) {
+                            foreach my $course (keys %{$week->{$day}->{"$i\:00"}}) {
                                 next if ($course eq 'count');
                                 print "    <td bgcolor=\"".$colorArray[$colorHash{$course}]."\">";
                                 print "$course<br>";
-                                foreach my $key (keys $week->{$day}->{"$i\:00"}->{$course}) {
+                                foreach my $key (keys %{$week->{$day}->{"$i\:00"}->{$course}}) {
                                     print $key.' '.$week->{$day}->{"$i\:00"}->{$course}->{$key};
                                 }
                             }
@@ -422,10 +422,10 @@ if (scalar(@schedules) > 0) {
                     } else {
                         print "    <td bgcolor=\"red\"><font color=\"white\">";
                         
-                        foreach my $course (keys $week->{$day}->{"$i\:00"}) {
+                        foreach my $course (keys %{$week->{$day}->{"$i\:00"}}) {
                                 next if ($course eq 'count');
                                 print "<u>$course</u><br>";
-                                foreach my $key (keys $week->{$day}->{"$i\:00"}->{$course}) {
+                                foreach my $key (keys %{$week->{$day}->{"$i\:00"}->{$course}}) {
                                     print $key.' '.$week->{$day}->{"$i\:00"}->{$course}->{$key}.'<br>';
                                 }
                         }
