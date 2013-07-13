@@ -176,7 +176,7 @@ sub recursiveProbabilityCount
             }
         } else {
             if (exists $courses->{$keys[$idx]}->{PRA}) {
-                foreach my $praMeet (keys $courses->{$keys[$idx]}->{PRA}) {
+                foreach my $praMeet (keys %{$courses->{$keys[$idx]}->{PRA}}) {
                     recursiveProbabilityCount($courses, $idx + 1, \@keys);
                 }
             } else {
@@ -221,7 +221,7 @@ sub recursiveProbability
             }
         } else {
             if (exists $courses->{$keys[$idx]}->{PRA}) {
-                foreach my $praMeet (keys $courses->{$keys[$idx]}->{PRA}) {
+                foreach my $praMeet (keys %{$courses->{$keys[$idx]}->{PRA}}) {
                     $instance{$keys[$idx]}->{PRA} = {$praMeet => $courses->{$keys[$idx]}->{PRA}->{$praMeet}};
                     recursiveProbability(\%instance, $courses, $idx + 1, \@keys);
                 }
@@ -392,7 +392,7 @@ if (scalar(@schedules) > 0) {
     print "<ul>\n";
     for (my $i = 0; $i <= $#fl; $i++) {
         my $week = $schedules[$i]->[0];
-        my @coursesChosen = sort keys $schedules[$i]->[1];
+        my @coursesChosen = sort keys %{$schedules[$i]->[1]};
         my %colorHash;
         for (my $j = 0; $j <= $#coursesChosen; $j++) {
             $colorHash{$coursesChosen[$j]} = $j;
