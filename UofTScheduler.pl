@@ -196,7 +196,7 @@ sub recursiveProbability
     
     if ($idx == scalar @keys ) {
         my @possiblilities = checkNumberOfConflicts(\%instance);
-        push @schedules, [$possiblilities[1], $possiblilities[2]]  if ($possiblilities[0] <= $maxNumberOfConflict);
+        push @schedules, [$possiblilities[1], $possiblilities[2], $possiblilities[0]]  if ($possiblilities[0] <= $maxNumberOfConflict);
         $counter = $counter + 1;
         if (($counter/$totalCount*100) > ($currentPerc  + 5)) {
             $currentPerc = $currentPerc + 5;
@@ -278,7 +278,7 @@ if (scalar(@schedules) > 0) {
         $decision = uc $decision;
         last if ($decision =~ /^Y|N$/);
     }
-
+    @schedules = sort {$a->[2] cmp $b->[2]} @schedules;
     if ($decision eq 'Y') {
         exportHTML();
      }
