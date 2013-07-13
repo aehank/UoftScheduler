@@ -288,7 +288,7 @@ if (scalar(@schedules) > 0) {
     `mkdir -p results`;
     `rm results/*`;
     my @fl;
-    my $numberofschedules = scalar @schedules;
+    my $numberofschedules = scalar @schedules < 250 ? scalar @schedules : 250 ;
     my @daysOfWeek = ('Mon', 'Tue', 'Wed', 'Thu', 'Fri');
     my @colorArray = ('#FF7F00', '#AB82FF', '#C0C0C0', '#DEB887', '#6495ED', '#FF7F50', '#FAEBD7', '#5F9EA0');
     for (my $i = 0; $i < $numberofschedules; $i++) {
@@ -449,6 +449,8 @@ if (scalar(@schedules) > 0) {
     print "</body>\n";
     print "</html>\n";
     close OUTPUT;
+    
+    print STDOUT "Exported to \'results\/index.html\'\n";
  }
  
  
